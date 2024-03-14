@@ -1,20 +1,10 @@
 const express = require('express');
 const mssql = require('mssql');
-const obterDataAAAAMMDD = require('../dataUtils.js');
+const { obterDataAAAAMMDD,createDBConfig } = require('../dataUtils.js'); // Importe a função obterDataAAAAMMDD
 
 const router = express.Router();
-const dataFormatada = obterDataAAAAMMDD();
+const config = createDBConfig();
 
-const config = {
-  user: 'vendas',
-  password: 'asavendas',
-  server: '192.168.1.242',
-  database: 'producao',
-  options: {
-    encrypt: false,
-    trustServerCertificate: true,
-  },
-};
 
 router.get('', async (req, res) => {
     try {

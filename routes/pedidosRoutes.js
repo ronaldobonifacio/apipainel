@@ -1,20 +1,10 @@
 const express = require('express');
 const mssql = require('mssql');
-const obterDataAAAAMMDD = require('../dataUtils.js');
+const { obterDataAAAAMMDD,createDBConfig } = require('../dataUtils.js'); // Importe a função obterDataAAAAMMDD
 
 const router = express.Router();
-const dataFormatada = obterDataAAAAMMDD();
-
-const config = {
-  user: 'vendas',
-  password: 'asavendas',
-  server: '192.168.1.242',
-  database: 'producao',
-  options: {
-    encrypt: false,
-    trustServerCertificate: true,
-  },
-};
+const dataFormatada = obterDataAAAAMMDD(); // Use a função obterDataAAAAMMDD para obter a data formatada
+const config = createDBConfig();
 
 router.get('', async (req, res) => {
     try {
@@ -37,7 +27,7 @@ router.get('', async (req, res) => {
                        REPLACE(SUBSTRING(CAST(DATAIMPORTACAO AS VARCHAR), 13, 19), ' ', '0') AS HORAIMPORTACAO, 
                        MAX(CASE WHEN ZW7_ENVIO2 = 'S' THEN '7' WHEN D2_DOC IS NOT NULL THEN '6' WHEN ZW7_ENVIO = 'S' THEN '5' WHEN C9_BLEST IS NOT NULL AND C5_TIPO <> 'A' THEN '4' WHEN C5_TIPO <> 'A' THEN '3' WHEN C5_NUM IS NOT NULL THEN '2' WHEN ZW7_NUMDI <> '' OR ZW7_NUMDI IS NOT NULL THEN '1' END) AS STATUS_
                 FROM V_ACOMP_OL (NOLOCK) 
-                WHERE ZW7_DTIMP = @data AND DATAIMPORTACAO IS NOT NULL 
+                WHERE ZW7_DTIMP = @dataformatada AND DATAIMPORTACAO IS NOT NULL 
                 GROUP BY ZW7_NPEDIT, 
                          ZW7_FORNE, 
                          ZW7_DTIMP, 
@@ -58,10 +48,11 @@ router.get('', async (req, res) => {
                      HORAIMPORTACAO, 
                      STATUS_ 
             ORDER BY CAST(HORAIMPORTACAO AS datetime) DESC`;
+
         console.log('Consulta executada:', consulta);
         const result = await pool
             .request()
-            .input('data', mssql.VarChar, dataFormatada)
+            .input('dataformatada', mssql.VarChar, dataFormatada) // Use VarChar para o tipo de entrada
             .query(consulta);
 
         console.log(result.query);
