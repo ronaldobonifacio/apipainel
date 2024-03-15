@@ -116,9 +116,8 @@ GROUP BY
     D2_SERIE,
     D2_DOC
 ORDER BY 
-    ZW7_CODPRO DESC
-          `;
-    console.log('Consulta executada:', consulta);
+    ZW7_CODPRO DESC `;
+
     const result = await pool
       .request()
       .input('numpedido', mssql.VarChar, req.params.numpedido) // Inserir o valor do parâmetro na query
